@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sopa de Letras Romántica</title>
+
+    <style>
+        body {
+    font-family: 'Arial', sans-serif;
+    background-color: #fdeef4;
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #e91e63;
+    font-family: 'Cursive', sans-serif;
+    margin-bottom: 20px;
+}
+
+.word-list {
+    margin: 20px 0;
+}
+
+.word-list ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.word-list li {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px 10px;
+    background-color: #fce4ec;
+    color: #e91e63;
+    border-radius: 5px;
+    font-size: 1.2em;
+}
+
+.word-search {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#wordInput {
+    padding: 10px;
+    width: 70%;
+    border: 1px solid #e91e63;
+    border-radius: 5px;
+    font-size: 1.2em;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #e91e63;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-left: 10px;
+}
+
+button:hover {
+    background-color: #d81b60;
+}
+
+.letter-grid {
+    display: grid;
+    grid-template-columns: repeat(17, 1fr);
+    gap: 2px;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+.letter-grid div {
+    width: 100%;
+    height: 100%;
+    background-color: #fce4ec;
+    border: 1px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #e91e63;
+    border-radius: 5px;
+    font-size: 1.2em;
+}
+
+.letter-grid div.found {
+    background-color: #e91e63;
+    color: #fff;
+}
+/* ... (otros estilos) ... */
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #e91e63;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .letter-grid {
+        grid-template-columns: repeat(17, 1fr);
+    }
+
+    .letter-grid div {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+
+    .letter-grid {
+        grid-template-columns: repeat(17, 1fr);
+    }
+
+    .letter-grid div {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+    </style>>
+</head>
+<body>
+    <div class="container">
+        <h1>Sopa de Letras Romántica</h1>
+        <div class="word-list">
+            <ul id="wordList"></ul>
+        </div>
+        <div class="word-search">
+            <input type="text" id="wordInput" placeholder="Ingresa una palabra">
+            <button onclick="checkWord()">Buscar</button>
+        </div>
+        <h5 class="palabras">Son 6 palabras</h5>
+
+        <div class="letter-grid" id="letterGrid"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>¡Buena Gorditaaaa!</h2>
+            <p id="modalText">Aquí va el texto que quieras poner.</p>
+            <button onclick="copyText()">Copiar Texto</button>
+        </div>
+    </div>
+
+    <script>
+        const words = ['ENAMORADO', 'LUCHI', 'GORDITA', 'DIVINA', 'PERFECTA', 'HERMOSA'];
+const gridSize = 17;
+const grid = [];
+let foundWords = 0;
+
+function createGrid() {
+    const letterGrid = document.getElementById('letterGrid');
+    letterGrid.innerHTML = '';
+    for (let i = 0; i < gridSize * gridSize; i++) {
+        const div = document.createElement('div');
+        letterGrid.appendChild(div);
+        grid.push(div);
+    }
+    placeWords();
+    fillEmptyCells();
+}
+
+function placeWords() {
+    words.forEach((word, index) => {
+        let placed = false;
+        while (!placed) {
+            const direction = Math.floor(Math.random() * 3); // 0: horizontal, 1: vertical, 2: diagonal
+            const row = Math.floor(Math.random() * gridSize);
+            const col = Math.floor(Math.random() * gridSize);
+            if (direction === 0 && col + word.length <= gridSize && canPlaceWord(row, col, word, direction)) {
+                for (let i = 0; i < word.length; i++) {
+                    grid[row * gridSize + col + i].textContent = word[i];
+                    grid[row * gridSize + col + i].setAttribute('data-word-id', index);
+                }
+                placed = true;
+            } else if (direction === 1 && row + word.length <= gridSize && canPlaceWord(row, col, word, direction)) {
+                for (let i = 0; i < word.length; i++) {
+                    grid[(row + i) * gridSize + col].textContent = word[i];
+                    grid[(row + i) * gridSize + col].setAttribute('data-word-id', index);
+                }
+                placed = true;
+            } else if (direction === 2 && row + word.length <= gridSize && col + word.length <= gridSize && canPlaceWord(row, col, word, direction)) {
+                for (let i = 0; i < word.length; i++) {
+                    grid[(row + i) * gridSize + col + i].textContent = word[i];
+                    grid[(row + i) * gridSize + col + i].setAttribute('data-word-id', index);
+                }
+                placed = true;
+            }
+        }
+    });
+}
+
+function canPlaceWord(row, col, word, direction) {
+    for (let i = 0; i < word.length; i++) {
+        let rowIndex = row, colIndex = col;
+        if (direction === 0) {
+            colIndex += i;
+        } else if (direction === 1) {
+            rowIndex += i;
+        } else if (direction === 2) {
+            rowIndex += i;
+            colIndex += i;
+        }
+        if (grid[rowIndex * gridSize + colIndex].textContent !== '') {
+            return false;
+        }
+    }
+    return true;
+}
+
+function fillEmptyCells() {
+    for (let i = 0; i < gridSize * gridSize; i++) {
+        if (grid[i].textContent === '') {
+            grid[i].textContent = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        }
+    }
+}
+
+function checkWord() {
+    const wordInput = document.getElementById('wordInput').value.toUpperCase();
+    const wordList = document.getElementById('wordList');
+    const wordIndex = words.indexOf(wordInput);
+    if (wordIndex !== -1) {
+        const li = document.createElement('li');
+        li.textContent = wordInput;
+        li.style.textDecoration = 'line-through';
+        wordList.appendChild(li);
+
+        const wordId = wordIndex;
+        const cells = document.querySelectorAll(`[data-word-id="${wordId}"]`);
+        cells.forEach(cell => {
+            cell.style.backgroundColor = '#b3e5fc'// Celeste
+            cell.style.color = 'white'; //white
+        });
+
+        foundWords++;
+        if (foundWords === words.length) {
+            showModal();
+        }
+    }
+    document.getElementById('wordInput').value = '';
+}
+
+function showModal() {
+    const modal = document.getElementById('myModal');
+    modal.style.display = 'flex';
+}
+
+function closeModal() {
+    const modal = document.getElementById('myModal');
+    modal.style.display = 'none';
+}
+
+function copyText() {
+    const modalText = document.getElementById('modalText').textContent;
+    navigator.clipboard.writeText(modalText).then(() => {
+        alert('Texto copiado al portapapeles');
+    }).catch(err => {
+        console.error('Error al copiar texto: ', err);
+    });
+}
+
+// Event listener para cerrar el modal
+window.onclick = function(event) {
+    const modal = document.getElementById('myModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+// Event listener para cerrar el modal con el botón de cerrar
+document.querySelector('.close').addEventListener('click', closeModal);
+
+// Event listener para la tecla Enter
+document.getElementById('wordInput').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        checkWord();
+    }
+});
+
+window.onload = createGrid;
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #ffe0f0;
+    color: #333;
+    padding: 20px;
+}
+
+h1 {
+    color: #d6006e;
+}
+
+input {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    width: 200px;
+    font-size: 16px;
+    border: 2px solid #d6006e;
+    border-radius: 5px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #d6006e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #ff4b93;
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 20px;
+    color: #d6006e;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+.pistas p {
+    font-style: italic;
+}
+</style>
+</head>
+<body>
+    <h1>Adivina La Palabra</h1>
+    <p>Adivina La Palabra:</p>
+    <input type="text" id="word" placeholder="Escribe aquí">
+    <button onclick="checkWord()">Comprobar</button>
+    <p id="message"></p>
+
+    <div class="pistas">
+        <h5>Pistas</h5>
+            <p>*Es Algo que Queremos mucho</p>
+            <p>*va a estar con nosotros simepre</p>
+            <p>*nos encanta pasar tiempo con el/ella</p>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>¡Buena Gorditaaaa!</h2>
+            <p id="modalText">Aquí va el texto que quieras poner.</p>
+            <button onclick="copyText()">Copiar Texto</button>
+        </div>
+    </div>
+
+    <script>
+        let secretWord = "LUCHI"; // Palabra secreta a completar
+let attempts = 0;
+
+function checkWord() {
+    let userWord = document.getElementById("word").value.toUpperCase();
+    attempts++;
+
+    if (userWord === secretWord) {
+        showMessage(`¡Felicidades! Has completado la palabra en ${attempts} intentos.`);
+        showModal();
+    } else {
+        showMessage("Esa no es la palabra correcta. Inténtalo de nuevo.");
+    }
+}
+
+function showModal() {
+    let modal = document.getElementById("myModal");
+    let modalText = document.getElementById("modalText");
+    modalText.textContent = "¡Has completado la palabra del amor! ¡Eres increíble!"; // Puedes cambiar este texto
+    modal.style.display = "block";
+}
+
+// Función para copiar el texto del modal
+function copyText() {
+    let modalText = document.getElementById("modalText");
+    let textArea = document.createElement("textarea");
+    textArea.value = modalText.textContent;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+    showMessage("Texto copiado al portapapeles.");
+}
+
+// Cierra el modal cuando se hace clic en la "x"
+document.querySelector('.close').addEventListener('click', function() {
+    let modal = document.getElementById("myModal");
+    modal.style.display = "none";
+});
+
+// Cierra el modal cuando se hace clic fuera del modal
+window.onclick = function(event) {
+    let modal = document.getElementById("myModal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+function showMessage(msg) {
+    document.getElementById("message").innerHTML = msg;
+}
+
+    </script>
+</body>
+</html>
